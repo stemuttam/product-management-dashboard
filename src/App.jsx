@@ -1,65 +1,63 @@
-// src/App.jsx
-import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import StatsCards from './components/StatsCards';
-import ProductTable from './components/ProductTable';
-import CartSidebar from './components/CartSidebar';
-import { generateMockProducts } from './utils/generateMockProducts';
+import React, { useState, useEffect } from "react";
+import Header from "./components/Header";
+import StatsCards from "./components/StatsCards";
+import ProductTable from "./components/ProductTable";
+import CartSidebar from "./components/CartSidebar";
+import { generateMockProducts } from "./utils/generateMockProducts";
 
 const App = () => {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState(() => {
-    const stored = sessionStorage.getItem('cart');
+    const stored = sessionStorage.getItem("cart");
     return stored ? JSON.parse(stored) : [];
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
-    setProducts(generateMockProducts(1000));
+    const data = generateMockProducts(1000);
+    setProducts(data);
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem('cart', JSON.stringify(cartItems));
+    sessionStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const handleAddToCart = (product) => {
-    setIsCartOpen(true);
+  const addToCart = (product) => {
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
+      const exists = prev.find((item) => item.id === product.id);
+      if (exists) {
         return prev.map((item) =>
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
+      } else {
+        return [...prev, { ...product, quantity: 1 }];
       }
-      return [...prev, { ...product, quantity: 1 }];
     });
   };
 
   const updateQuantity = (id, quantity) => {
-    if (quantity < 1) return;
     setCartItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, quantity } : item))
     );
   };
 
-  const removeItem = (id) => {
+  const removeFromCart = (id) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 p-4">
       <Header cartCount={cartItems.length} onCartClick={() => setIsCartOpen(true)} />
-      <main className="p-4 max-w-7xl mx-auto">
-        <StatsCards products={products} cartItems={cartItems} />
-        <ProductTable products={products} onAddToCart={handleAddToCart} />
-      </main>
-      <CartSidebar
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        updateQuantity={updateQuantity}
-        removeItem={removeItem}
-      />
+      <StatsCards products={products} />
+      <ProductTable products={products} onAddToCart={addToCart} />
+      {isCartOpen && (
+        <CartSidebar
+          cartItems={cartItems}
+          onClose={() => setIsCartOpen(false)}
+          onUpdateQuantity={updateQuantity}
+          onRemove={removeFromCart}
+        />
+      )}
     </div>
   );
 };
