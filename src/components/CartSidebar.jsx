@@ -1,57 +1,46 @@
-// src/components/CartSidebar.jsx
-import React from 'react';
+import React from "react";
 
-const CartSidebar = ({ isOpen, onClose, items, updateQuantity, removeItem }) => {
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+const CartSidebar = ({ cartItems, onClose, onUpdateQuantity, onRemove }) => {
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <div
-      className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg border-l transform transition-transform duration-300 z-40 ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}
-    >
-      <div className="p-4 flex justify-between items-center border-b">
-        <h2 className="text-lg font-bold">Your Cart</h2>
-        <button onClick={onClose} className="text-gray-500 text-xl font-bold">&times;</button>
+    <div className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg p-4 z-50 overflow-y-auto">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-bold">🛒 Cart</h2>
+        <button onClick={onClose} className="text-red-500 text-xl font-semibold">✖</button>
       </div>
-      <div className="p-4 overflow-y-auto h-[calc(100%-160px)] space-y-4">
-        {items.length === 0 ? (
-          <p className="text-gray-500 text-sm">Your cart is empty.</p>
-        ) : (
-          items.map((item) => (
-            <div key={item.id} className="flex gap-3 items-start border-b pb-3">
-              <img src={item.image} alt={item.name} className="w-14 h-14 rounded object-cover" />
+      {cartItems.length === 0 ? (
+        <p className="text-gray-500">Cart is empty.</p>
+      ) : (
+        <ul className="space-y-4">
+          {cartItems.map((item) => (
+            <li key={item.id} className="flex items-center gap-3 border-b pb-2">
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-12 h-12 rounded object-cover"
+              />
               <div className="flex-1">
-                <p className="font-medium text-sm">{item.name}</p>
-                <p className="text-xs text-gray-500">₹{item.price.toFixed(2)}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    disabled={item.quantity <= 1}
-                    className="px-2 py-1 border rounded text-sm hover:bg-gray-100 disabled:opacity-40"
-                  >
-                    −
-                  </button>
-                  <span className="text-sm">{item.quantity}</span>
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="px-2 py-1 border rounded text-sm hover:bg-gray-100"
-                  >
-                    +
-                  </button>
+                <h4 className="font-medium text-sm">{item.name}</h4>
+                <div className="flex items-center gap-2 mt-1">
+                  <input
+                    type="number"
+                    min={1}
+                    value={item.quantity}
+                    onChange={(e) =>
+                      onUpdateQuantity(item.id, parseInt(e.target.value))
+                    }
+                    className="w-14 border rounded px-2 py-1 text-sm"
+                  />
+                  <span className="text-sm text-gray-700">× ₹{item.price.toFixed(2)}</span>
                 </div>
               </div>
-              <button
-                onClick={() => removeItem(item.id)}
-                className="text-red-500 text-xs hover:underline"
-              >
-                Remove
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-      <div className="p-4 border-t text-right font-semibold">
+              <button onClick={() => onRemove(item.id)} className="text-red-600 text-lg">🗑</button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="mt-6 font-semibold text-base">
         Total: ₹{total.toFixed(2)}
       </div>
     </div>
