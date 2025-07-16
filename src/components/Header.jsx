@@ -1,21 +1,36 @@
 import React from "react";
 
-const Header = ({ cartCount, onCartClick }) => {
+const Header = ({ search, setSearch, cartCount, onToggleCart }) => {
   return (
-    <div className="flex justify-between items-center mb-6">
-      <h1 className="text-2xl font-bold text-blue-700 flex items-center gap-2">
-        📦 Product Dashboard
+    <header className="bg-white shadow px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      {/* Left - Title */}
+      <h1 className="text-xl font-bold text-blue-700 flex items-center gap-2">
+        🧱 Product Dashboard
       </h1>
+
+      {/* Center - Search Bar */}
+      <div className="flex-1 flex justify-center">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search products..."
+          className="px-4 py-2 border rounded w-full max-w-md"
+        />
+      </div>
+
+      {/* Right - Cart Button */}
       <button
-        onClick={onCartClick}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        onClick={onToggleCart}
+        className="relative flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
       >
-        🛒 Cart
-        <span className="bg-white text-blue-600 rounded-full px-2 text-sm font-semibold">
+        <span className="text-lg">🛒</span>
+        <span className="text-sm font-medium">Cart</span>
+        <span className="absolute -top-2 -right-2 bg-white text-blue-600 font-bold rounded-full w-6 h-6 flex items-center justify-center text-xs shadow">
           {cartCount}
         </span>
       </button>
-    </div>
+    </header>
   );
 };
 
