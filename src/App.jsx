@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./components/Header";
 import StatsCards from "./components/StatsCards";
 import ProductTable from "./components/ProductTable";
@@ -8,56 +8,58 @@ import { generateMockProducts } from "./utils/generateMockProducts";
 const App = () => {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState(() => {
-    const stored = sessionStorage.getItem("cart");
-    return stored ? JSON.parse(stored) : [];
+    const session = sessionStorage.getItem("cart");
+    return session ? JSON.parse(session) : [];
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const data = generateMockProducts(1000);
-    setProducts(data);
+    setProducts(generateMockProducts(1000));
   }, []);
 
   useEffect(() => {
     sessionStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (product) => {
+  const handleAddToCart = (product) => {
     setCartItems((prev) => {
-      const exists = prev.find((item) => item.id === product.id);
-      if (exists) {
-        return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      const existing = prev.find((p) => p.id === product.id);
+      if (existing) {
+        return prev.map((p) =>
+          p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
         );
-      } else {
-        return [...prev, { ...product, quantity: 1 }];
       }
+      return [...prev, { ...product, quantity: 1 }];
     });
-  };
-
-  const updateQuantity = (id, quantity) => {
-    setCartItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
-    );
-  };
-
-  const removeFromCart = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+    setIsCartOpen(true);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <Header cartCount={cartItems.length} onCartClick={() => setIsCartOpen(true)} />
-      <StatsCards products={products} />
-      <ProductTable products={products} onAddToCart={addToCart} />
-      {isCartOpen && (
-        <CartSidebar
-          cartItems={cartItems}
-          onClose={() => setIsCartOpen(false)}
-          onUpdateQuantity={updateQuantity}
-          onRemove={removeFromCart}
+    <div className="min-h-screen bg-gray-100">
+      <Header
+        search={search}
+        setSearch={setSearch}
+        cartCount={cartItems.length}
+        onToggleCart={() => setIsCartOpen(true)}
+      />
+
+      <main className="container mx-auto px-4 py-6">
+        <StatsCards products={products} />
+        <ProductTable
+          products={products}
+          onAddToCart={handleAddToCart}
+          onUpdateProducts={setProducts}
+          search={search}
         />
-      )}
+      </main>
+
+      <CartSidebar
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cartItems={cartItems}
+        setCartItems={setCartItems}
+      />
     </div>
   );
 };
